@@ -43,7 +43,7 @@ float gFrequency[3];
 float gPhase[3];
 float gInverseSampleRate;
 
-int joint0, joint1, joint2, joint3, joint4;
+float joint[5];
 
 arm_rec arm;
 
@@ -57,17 +57,15 @@ void serialIo(void* arg) {
 		gFrequency[1] = arm.stylus_tip.y;
 		gFrequency[2] = arm.stylus_tip.z;
 		
-		// arm joint angles   
-		joint0 = arm.joint_deg[0];
-		joint1 = arm.joint_deg[1];
-		joint2 = arm.joint_deg[2];
-		joint3 = arm.joint_deg[3];
-		joint4 = arm.joint_deg[4];
+		// arm joint angles
+		for(int i = 0; i < 5; i++) {
+			joint[i] = arm.joint_deg[i];
+		}
 		
 		// handle continuity i joint positions
-		if (joint2 < 180) joint2 += 360;
-		if (joint3 < 225) joint3 += 360; // Easy to move joint past 180, so 225 is better
-		if (joint4 < 180) joint4 += 360;
+		if (joint[2] < 180) joint[2] += 360;
+		if (joint[3] < 225) joint[3] += 360; // Easy to move joint past 180, so 225 is better
+		if (joint[4] < 180) joint[4] += 360;
 		
 	}
 }
