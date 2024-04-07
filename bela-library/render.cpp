@@ -87,7 +87,7 @@ bool setup(BelaContext *context, void *userData) {
 	arm_result result;
 	rt_printf("arm_connect\n");
 	result = arm_connect(&arm, port, baud);
-	rt_printf("Result: \n", result); //-----------------------------------------------------------------------
+	rt_printf("Result: %s\n", result); //-----------------------------------------------------------------------
 	
 	AuxiliaryTask serialCommsTask = Bela_createAuxiliaryTask(serialIo, 0, "serial-thread", NULL);
 	Bela_scheduleAuxiliaryTask(serialCommsTask);
