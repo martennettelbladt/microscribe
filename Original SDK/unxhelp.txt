@@ -1,0 +1,68 @@
+
+Trouble-shooting tips for using an Immersion MicroScribe-3D system with 
+a UNIX machine:
+
+Configuring serial ports:
+------------------------
+Some systems require serial ports to be configured in a special mode
+in order to be free for general purpose serial communication.  For
+example, on the SGI platform, the ports must be turned OFF in the
+System Manager.  Consult your system's manual or system administrator
+to confirm that your serial ports are properly configured for general-
+purpose I/O rather than dedicated terminal or modem use.  After changing
+this type of setting, you may need to reboot.  This trouble-shooting tip
+may not apply to your system.
+
+Serial Port Device File Names:
+-----------------------------
+In the file driveunx.c is a function that opens the serial port.  This
+function needs to know the file name that corresponds to the desired
+serial port.  The assumed device names are "/dev/ttyd1" for port 1, and
+"/dev/ttyd2" for port 2.  Consult your system's manual to find out
+what these ports are called on your machine, and change these names
+in driveunx.c if necessary.  To see what device files reside on your
+machine, list the files in the /dev directory.
+
+Serial Cables:
+-------------
+Your serial cable must connect the Immersion  MicroScribe-3D's mini-DIN8 
+female socket to the connector that is installed at your machine's serial
+port.  Unfortunately, there are many different types of peripheral cables 
+(even many different types of SERIAL peripheral cables), so simply finding 
+the one with the correct connectors does NOT guarantee that you have the 
+correct cable.
+
+Consult the Immersion MicroScribe-3D Owner's Manual or SDK Manual for a 
+diagram and more information about the serial connection.
+
+Baud Rates:
+----------
+The Immersion MicroScribe-3D does not operate at any baud rate below 9600.
+On UNIX systems, this usually means the available rates are 9600,
+19200, and 38400.  Be sure to confine any trouble-shooting experiments to
+those three baud rates.
+
+Manually Communicating with the Immersion MicroScribe-3D:
+---------------------------------------------------------
+You should be able to manually 'sign on' the MicroScribe-3D by using a 
+terminal program to send the string 'MSCR' repeatedly.  Run your terminal
+program while connected to the Probe, and type MSCRMSCRMSCRMSCR...
+with no spaces or carriage returns.  After you have typed this
+from 3 to 6 times, the Probe should respond by echoing back 'MSCR'
+one time.  You then must type 'BEGIN' only once, and the Probe will
+echo 'BEGIN'.  If you can do this manually, then you have confirmed
+that (1) your Immersion MicroScribe-3D is working, (2) you have the right
+cable, (3) your serial ports are properly configured.  Remember that
+this will only work if your baud rate is set to 9600, 19200, or 38400.
+
+
+These trouble-shooting tips solve most SGI/MicroScribe-3D integration 
+problems.  If you have investigated these tips and are still having 
+trouble, please let us know.  You can reach us
+
+       by email at immersion@starconn.com
+       by phone at (408) 467-1900
+       by FAX at (408) 467-1901
+
+
+

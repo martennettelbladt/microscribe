@@ -1,0 +1,20 @@
+// MSTIP.DAT - TIP DATA FILE FOR THE MICROSCRIBE
+//
+// Standard Ball Tip is 0.242 inches shorter than Standard Point Tip
+// Set D5Delta = 0.0 if using Standard Point Tip
+// Set D5Delta = 0.242 if using Standard Ball Tip
+// If you have a non-Standard tip, measure the exact difference
+// between the Standard Point Tip and your tip *in inches* and
+// enter that number for D5Delta.  If it is longer, make D5Delta 
+// negative; if it is shorter, make D5Delta positive.  
+//
+// BE SURE TO POWER UP THE MICROSCRIBE WITH THE STANDARD POINT TIP
+// IN THE HOME POSITION (INSERTED IN THE STYLUS HOLDER) BEFORE 
+// CHANGING TIPS.  POWERING UP THE MICROSCRIBE WITH ANYTHING OTHER
+// THAN THE STANDARD POINT TIP WILL CAUSE INACCURACIES IN THE REPORTED
+// DATA.  
+[MSStylusAdjustments]
+D5Delta=0.0	
+D4Delta=0.0
+A5Delta=0.0
+

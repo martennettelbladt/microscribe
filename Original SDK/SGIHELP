@@ -1,0 +1,61 @@
+
+Trouble-shooting tips for using an Immersion MicroScribe-3D system with
+a Silicon Graphics computer:
+
+Configuring SGI serial ports:
+----------------------------
+In the System Manager, each port can be set to TERMINAL, MODEM, or OFF.
+The Immersion MicroScribe-3D software requires the OFF setting.  If you 
+change this setting, you need to restart the machine for it to take 
+effect.
+
+Serial Cables:
+-------------
+Most SGI machines have a DIN8 (round) connector on their serial
+ports.  The Immersion MicroScribe-3D requires a mini-DIN8 serial 
+cable.  There are many different types of peripheral cables (even
+many different types of SERIAL peripheral cables), so simply finding
+one with the correct connectors does NOT guarantee that you have the
+correct cable.
+
+If your SGI machine does not have a DIN8 connector, consult your SGI
+owner's manual to find out how the serial port is connected.  You will
+need to find a serial cable that connects the proper signals to the
+proper pins on the Immersion MicroScribe-3D.  
+
+Consult the Immersion MicroScribe-3D Owner's Manual or SDK Manual for a 
+diagram and more information about the serial connection.
+
+Baud Rates:
+----------
+The Immersion MicroScribe-3D will not bother with any baud rate below 9600.
+On the SGI platform, this means the only available rates are 9600, 19200,
+and 38400, so be sure to confine any trouble-shooting experiments to
+those three.
+
+Manually Communicating with the Immersion MicroScribe-3D:
+---------------------------------------------------------
+You should be able to manually 'sign on' the MicroScribe-3D by using a 
+terminal program to send the string 'MSCR' repeatedly.  Run your terminal
+program while connected to the Probe, and type MSCRMSCRMSCRMSCR...
+with no spaces or carriage returns.  After you have typed this
+from 3 to 6 times, the Probe should respond by echoing back 'MSCR'
+one time.  You then must type 'BEGIN' only once, and the Probe will
+echo 'BEGIN'.  If you can do this manually, then you have confirmed
+that (1) your Immersion MicroScribe-3D is working, (2) you have the right
+cable, (3) your serial ports are properly configured.  Remember that
+this will only work if your baud rate is set to 9600, 19200, or 38400.
+
+
+These trouble-shooting tips solve most SGI/MicroScribe-3D integration 
+problems.  If you have investigated these tips and are still having 
+trouble, please let us know.  You can reach us
+
+       by email at immersion@starconn.com
+       by phone at (408) 467-1900
+       by FAX at (408) 467-1901
+
+
+
+
+
