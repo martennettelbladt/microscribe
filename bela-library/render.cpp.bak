@@ -63,7 +63,6 @@ void serialIo(void* arg) {
 		}
 		
 		// handle continuity i joint positions
-		if (joint[0] < 180) joint[0] += 360;
 		if (joint[2] < 180) joint[2] += 360;
 		if (joint[3] < 225) joint[3] += 360; // Easy to move joint past 180, so 225 is better
 		if (joint[4] < 180) joint[4] += 360;
