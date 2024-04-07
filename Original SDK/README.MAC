@@ -1,0 +1,82 @@
+
+Dear MicroScribe-3D Developer,
+
+Your Immersion MicroScribe-3D Software Developer's Kit Mac Version
+	is included on this diskette.  This package contains everything
+	you need to develop software for the Immersion MicroScribe-3D.
+
+The software library consists of 3 source files, 3 header files,
+	and 3 example source programs, and this readme file.
+
+This kit is only for the MicroScribe-3D, not other 6DOF arm products.
+The source files arm.c, arm.h, hci.c, hci.h, drivemac.c, and drive.h
+have changed from the original Personal Digitizer DPL.
+
+Source Files:
+	arm.c - This includes all high-level calls for using
+		Immersion Corp.'s MicroScribe-3D.  Your programs
+		will need to call these functions directly.
+
+	hci.c - This includes all low-level calls.  You will not
+		need to call these functions; just link this file
+		with the rest of your project.
+
+	drivemac.c - All machine-specific calls are contained here.
+		You will not need to call these functions directly, either.
+		For other computing platforms (e.g.,  Unix, PC), this file
+		is simply replaced by a corresponding machine-specific
+		file.
+
+Header Files:
+	arm.h - Includes all definitions and types used by the library.
+		You need to #include this in your program.
+
+	hci.h - Includes all definitions and types used by the
+		low-level hci.c module.  You need to #include this in your program.
+
+	drive.h - This file is needed only to compile drivemac.c.
+		Do not #include this in your program, unless you want
+		to do your own direct serial i/o.
+
+Examples:
+	DigitizeMac.c - Sample program showing how to get points from the
+		MicroScribe for digitizing applications.  Prints MicroScribe coordinates 
+		to screen.
+
+	MSTestMac.c - Sample test and diagnostic program for the MicroScribe.  
+		Prints MicroScribe serial number, model number, firmware version, 
+		joint angles, xyz coordinates, and other information to screen.
+
+	armfgnd.c - Shows typical main loop using FOREGROUND update
+		methods.  Prints MicroScribe coordinates to screen.
+
+	armmotn.c - Shows typical main loop using MOTION SENSING update
+		methods.  Prints MicroScribe coordinates to screen.
+
+	armbgnd.c - Shows typical main loop using BACKGROUND update
+		methods.  Prints MicroScribe coordinates to screen.
+
+For a discussion of foreground and background commands, see Chapter 3
+of the SDK manual. A summary is also provided at the beginning of
+the file arm.c.
+
+
+
+TO CREATE YOUR OWN PROGRAM:
+
+Write a C program, perhaps using one of the examples as a template.
+Be sure to #include the files arm.h and hci.h in your program. Compile your
+program to produce an object file, and likewise compile the files
+arm.c, hci.c, and drivemac.c to produce object files.  Then,
+link your object file with the other three.
+
+
+Consult your SDK Companion Manual for additional information.
+For questions, call (408) 467-1900 and ask for Technical Support,
+or write email to support@immerse.com.  You can reach us by fax
+at (408) 467-1901.  The MicroScribe SDK is also available by 
+download from Immersion's website:  www.immerse.com
+
+
+Thank you.
+

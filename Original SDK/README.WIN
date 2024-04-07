@@ -1,0 +1,258 @@
+
+Dear MicroScribe-3D Developer,
+
+Your Immersion MicroScribe-3D Software Developer's Kit PC/Windows
+	Version is included on this diskette.  This package contains
+	source files to help you develop software for the Immersion
+	MicroScribe-3D in Windows.
+
+The software library consists of 3 source files, 2 header files,
+	and 3 example source programs, and this readme file.
+
+This kit is only for the MicroScribe-3D, not other 6DOF arm products.
+The source files arm.c, arm.h, hci.c, hci.h, drivepc.c, and drive.h
+have changed from the original Personal Digitizer DPL.
+
+Source Files:
+	arm.c - This includes all high-level calls for using
+		Immersion Corp.'s MicroScribe-3D.  Your programs
+		will need to call these functions directly.
+
+	hci.c - This includes all low-level calls.  You will not
+		need to call these functions; just link this file
+		with the rest of your project.
+
+	drivewin.c - This includes basic functions for interfacing
+		to 16 bit Windows (Windows 3.1x).  See below for
+		more information.
+
+	drive32.c - This includes basic functions for interfacing
+		to 32 bit windows (Windows 95 and Windows NT).
+		See below for more information.
+
+Header Files:
+	arm.h - Includes all definitions and types used by the library.
+		You need to #include this in your program.
+
+	hci.h - Includes all definitions and types used by the
+		low-level hci.c module.  You need to #include this in
+		your program.
+
+	drive.h - Includes all definitions and types used by the
+		low-level hardware interface functions.  You do not
+		need to #include this in your code, but it must
+		be accessible to compile the source files in the sdk.
+
+Examples:
+	Digitize.c - Sample program showing how to get points from the
+		MicroScribe for digitizing applications.  Prints MicroScribe coordinates 
+		to screen.
+
+	MSTestPC.c - Sample test and diagnostic program for the MicroScribe.  
+		Prints MicroScribe serial number, model number, firmware version, 
+		joint angles, xyz coordinates, and other information to screen.
+
+	armfgnd.c - Shows typical main loop using FOREGROUND update
+		methods.  Prints MicroScribe coordinates to screen.
+
+	armmotn.c - Shows typical main loop using MOTION SENSING update
+		methods.  Prints MicroScribe coordinates to screen.
+
+	armbgnd.c - Shows typical main loop using BACKGROUND update
+		methods.  Prints MicroScribe coordinates to screen.
+
+For a discussion of foreground and background commands, see Chapter 3
+of the SDK manual. A summary is also provided at the beginning of
+the file arm.c.
+
+
+
+TO CREATE YOUR OWN PROGRAM:
+
+Write a C program, perhaps using one of the examples as a template.
+Be sure to #include the files arm.h and hci.h in your program. Compile your
+program to produce an object file, and likewise compile the files
+arm.c, hci.c, drivewin.c, and any other Windows source files to produce
+object files.  Then, link the object files.
+
+
+**************************************************
+* Interfacing the Microscribe-3D to Windows 3.1x *
+**************************************************
+
+Basic support for interfacing with the MicroScribe-3D in the Microsoft
+Windows environment  has been added to SDK package. DRIVEPC.C has been
+replaced with DRIVEWIN.C for use in Windows. The DRIVEWIN.C file provides
+support for the use of serial ports COM1 through COM4 in Windows
+applications.
+
+Due to the messaging structure of 16 bit Windows, the foreground mode for
+interfacing with the MicroScribe does not work very well in this
+environment.  It tends to overload the system by  preventing message
+processing while the host computer is waiting for a response from the
+MicroScribe.  The motion sensing mode works relatively well in this
+environment, however the delay between packets (the second parameter
+in the arm_XXX_motion commands) needs to be  relatively large to prevent
+communication overruns on slower host machines.
+
+The background interfacing mode seems to work well in Windows applications.
+This is  especially true for Windows version 3.1x where the WM_COMMNOTIFY
+message can  be used as an indicator of responses received from the
+MicroScribe.  This mode will not overrun  the communication buffer
+and will provide a relatively high speed interface to the MicroScribe even
+on slower machines.
+
+To assist in constructing this interface, we have included some sample code
+below.  This  code is only a section of a large application, but should
+indicate a starting point.  The code  assumes Windows 3.1x is being used
+so that it can use the WM_COMMNOTIFY  message.
+
+
+#include <windows.h>
+
+#include "hci.h"
+#include "arm.h"
+
+#define ARM_TIMER_ID    101     /* use an unused timer id here */
+
+/**********************************************************************
+   FUNCTION: ArmStart
+   CONTENTS: This will attempt to start a connection with the MicroScribe-3D.
+   PARAMETERS:
+     arm -- The arm_rec to use.
+     port -- The communication port to use (1-4)
+     baud -- The baud rate to use.
+     hWindow -- The handle of the window to receive the WM_COMMNOTIFY messages.
+  RETURNS:
+     arm_result -- The result of the connection attempt.
+**********************************************************************/
+arm_result ArmStart(arm_rec *arm, int port, long baud, HWND hWindow)
+{
+	char buffer[80];
+	arm_result result;
+
+	arm_init(arm);
+	if ((result = arm_connect(arm, port, baud)) != SUCCESS) {
+		wsprintf (buffer,"ERROR: %s",result);
+		MessageBox(NULL,buffer, "ArmStart", MB_OK);
+		return result;
+	}
+
+		/* enable the notification of comm. characters received */
+		/* the 12 value should be adjusted to the expected message size */
+	if (!EnableCommNotification(host_get_id(arm->hci.port_num), hWindow, 12, -1)) {
+		wsprintf(buffer,"EnableCommNotification  Failed : %d %d",
+			arm-hci.port_num, host_get_id(arm->hci.port_num));
+		MessageBox(NULL,buffer,"ArmStart",MB_OK);
+		return CANT_OPEN_PORT;
+	}
+
+		/* set a timer in case the comm message is missed */
+	SetTimer(hWindow,ARM_TIMER_ID,1000,NULL);
+
+		/* insert the required bckg command here to start the reporting */
+	arm_stylus_6DOF_bckg(arm);
+
+	return SUCCESS;
+}
+
+
+/**********************************************************************
+  FUNCTION: ArmCheck
+  CONTENTS: This will check to determine if a new message has been received or not
+  PARAMETERS:
+     arm -- The arm_rec to use.
+  RETURNS:
+     arm_result -- The result of the attempt to receive a message.
+  NOTES:
+     If the message was successful or timed out, the next message is requested.
+**********************************************************************/
+arm_result ArmCheck(arm_rec *arm)
+{
+	arm_result result;
+
+	if ((result = arm_check_bckg(arm)) == SUCCESS) {
+		/* add function here to process the update arm information */
+		arm_stylus_6DOF_bckg(arm);
+	} else if (connected && result == TIMED_OUT) {
+		arm_stylus_6DOF_bckg(arm);
+	}
+
+	return result;
+}
+
+
+/**********************************************************************
+  FUNCTION: ArmFinish
+  CONTENTS: This will end the connection with the MicroScribe-3D.
+  PARAMETERS:
+     arm -- The arm_rec to use.
+  RETURNS:
+     nothing
+**********************************************************************/
+void  ArmFinish(arm_rec *arm)
+{
+		/* stop the comm notification messages */
+	EnableCommNotification(host_get_id(arm->hci.port_num), NULL, -1, -1);
+	arm_disconnect(arm);
+}
+
+
+To use these functions, call ArmStart after you have a valid handle value
+window to receive the  WM_COMMNOTIFY messages.  Then, in the window procedure
+for this window, add a response  to this message that will call the ArmCheck
+function (with the same arm_rec structure).  If this  function returns
+SUCCESS, then the message was received and the next update was requested.
+If something other than a 6DOF update is needed, then replace the calls
+to arm_stylus_6DOF_bckg in the above functions with the correct arm_XXX_bckg
+function.
+
+The ArmStart function also starts a timer message with a 1 second period and
+an id of ARM_TIMER_ID that will send WM_TIMER messages to the window handle
+that is given.  If the calling window procedure supplies a response to the
+WM_TIMER message that also calls  ArmCheck, this will protect against any
+problems that may occur with missed WM_COMMNOTIFY messages or communication
+errors sending to the MicroScribe.  The period for this timer is not
+important since it is only intended to assist recovery in case of any errors.
+
+At the end of the program, call ArmFinish to end the connection to the
+MicroScribe.
+
+***************************************************************
+* Interfacing the Microscribe-3D to Windows NT and Windows 95 *
+***************************************************************
+
+The WIN32 API does not provide the same functions for interfacing to serial
+ports as those supplied in the 16 bit API.  This requires the interface for
+32bit applications to be slightly different.  The file drive32.c provides
+the interface functions to develop 32bit applications.  Because there is no
+equivalent to the WM_COMMNOTIFY message in the WIN32 API, it is more
+difficult to interface with the Microscribe using window messages.  There
+are two possible methods we suggest for the 32 bit windows environment.
+
+The first interface possibility would be to poll the device during
+application idle time.  This could be accomplished in any of the 3 interface
+modes (foreground, background, and motion), but will block your application
+if a foreground update is requested.  This approach allows the application
+to be single threaded, but the latency can be large if the period between
+update requests is not well controlled.
+
+The second interface possibility is to create a second thread whose only task
+is to process foreground type updates and then communicate the results of
+these updates to another thread.  In an effort to support this mode more
+efficiently, the SDK has been internally modified to suspend the calling
+thread whenever possible if a foreground update is requested.  This
+internal SDK change has significantly reduced the CPU usage for the threads
+calling the foreground update functions.
+
+
+
+Consult your SDK Companion Manual for additional information.
+For questions, call (408) 467-1900 and ask for Technical Support,
+or write email to support@immerse.com.  You can reach us by fax
+at (408) 467-1901.  The MicroScribe SDK is also available by 
+download from Immersion's website:  www.immerse.com
+
+
+Thank you.
+

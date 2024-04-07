@@ -1,0 +1,236 @@
+Documentation for Microscribe DLL
+
+	The armdll32.dll file will allow you to access the microscribe from
+any WIN32 program.  It will function correctly on the Windows NT and Windows
+95 platforms, but it will not work under WIN32s.  The interface is such that
+after a few simple function calls a seperate thread is created in your
+application and Window messages are sent to the window of your choice when new
+data is available from the Microscribe.
+
+
+DEFINITIONS
+
+#define ARM_MESSAGE	"MscribeUpdate"
+
+The is the name of the registered windows message that is sent when updates are
+received from the microscribe.
+
+
+#define ARM_SUCCESS		0
+#define ARM_ALREADY_USED	-1
+#define ARM_NOT_ACCESSED	-2
+#define ARM_CANT_CONNECT	-3
+#define ARM_INVALID_PARENT	-4
+#define ARM_NOT_CONNECTED	-5
+#define ARM_BAD_PORTBAUD	-6
+
+These values represent the return values from each of the ArmXXX functions.  A
+return value of ARM_SUCCCESS indicates that the function completed
+successfully.  Any of the other values indicate what type of error occured in
+the function execution.
+
+
+#define ARM_3DOF			0x0001
+#define ARM_6DOF			0x0002
+#define ARM_3JOINT			0x0004
+#define ARM_6JOINT			0x0008
+#define ARM_FULL			0x0010
+
+These values are used as parameters to the ArmSetUpdate and ArmSetBckgUpdate
+functions.  They correspond to the types of updates as follows
+
+	3DOF	 The position of the tip of the microscribe is updated.
+	6DOF	 The position of the tip of the microscribe is updated.  Also,
+		 the orientation of the tip of the microscribe is updated.
+	3JOINT	 The angles for the first 3 joints of the microscribe are
+		 updated.
+	6JOINT	 The angles for all 6 of the joints of the microscribe are
+		 updated.  Although the microscribe currently only supports 5
+		 joints, this value is used to allow for the addition of a 6th
+		 axis at a latter time.
+	ARM_FULL All values associated with the microscribe are updated.  The
+		 current is the same as 6DOF.
+
+FUNCTIONS
+
+The following functions are avaiable through the use of the armdll32.dll file.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Function	int ArmStart(HWND parent);
+Description     This function is used to start the link with the arm.  It must
+		be called before any of the other functions can be used.  It
+		will do any initialization for use of the DLL.
+Parameters
+	parent	- This is the handle for the window that is to receive the
+		messages when the Microscribe data is updated.
+Returns
+	int	- This value will be ARM_SUCCESS if the initialization was
+		successful.  Otherwise, it will indicate what type of error
+		occured.
+Notes
+		This will do the initialization, but it will NOT connect to
+		the Microscribe.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Function	void ArmEnd(void)
+Description     This function is used to perform the shutdown for the DLL.  It
+		will handle all the release of resources required for the dll
+		to operate.
+Parameters
+	none
+Returns
+	nothing
+Notes
+		If the Microscribe is currently connected (through a call to
+		ArmConnect), this function will disconnect before exiting.
+		This will leave the Microscribe available for other
+		applications to use.
+
+		After this function is called, no other ArmXXX functions will
+		work until the ArmStart is called again.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Function	int ArmConnect(int port, long baud)
+Description	This function will attempt to connect to the Microscibe at the
+		specified baud rate on the specified port.  If both port and
+		baud are set to 0, a dialog box will be displayed for the user
+		to select a port and baud rate.
+Parameters
+	port	- The com port to connect on (1 - 4).
+	baud	- The baud rate to use for the connection.
+Returns
+	int	- If the microscribe was connected to successfully,
+		ARM_SUCCESS is returned.  Otherwise, an error value is
+		returned.
+Notes
+		If errors occur during the call to ArmConnect, the user is
+		presented with dialog boxes describing the problem that
+		occured and the user is given the opertunity to rectify the
+		problem.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Function	void ArmDisconnect(void)
+Description	This function is called to disconnect from the Microscribe
+		unit.  It will leave the unit ready for a connection with
+		another application.
+Parameters
+	none
+Returns
+	nothing
+Notes
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Function	int ArmReconnect(void)
+Description	This function is used to reestablish a connection with the
+		Microscribe.  It is useful for ensuring the connection is
+		still valid after problems such as the Microscribe losing
+		power.
+Parameters
+	none
+Returns
+	int	- This will be ARM_SUCCESS is the Microscribe was found on
+		the reconnection attempt.  Otherwise it will indicate what
+		type of error occured.
+Notes
+		The reconnection occurs on the same port with the same baud
+		rate that was actually used for the initial connection.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Function	int ArmSetBckgUpdate(int type)
+Function	int ArmSetUpdate(int type)
+Description	These will start the Microscribe updates after it has been
+		found with a call to ArmConnect.
+Parameters
+	type	- This is the type of data update to provide.  This will be
+		one of the predefined types listed above in the defines
+		section.
+Returns
+	int	- On a successful start of update ARM_SUCCESS will be returned.
+		Otherwise the return value will indicate what caused the
+		problem.
+Notes
+		These functions are identical.  There are 2 versions here for
+		backward compatibility with a previous DLL version.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Function	void *ArmGetArmRec(void)
+Description	This function will get a pointer to the arm_rec structure that
+		is internal to the DLL.  It is mostly an internal function and
+		should not be called in general.
+Parameters
+	none
+Returns
+	void *	- This is a pointer to the arm_rec structure.
+Notes
+		The pointer that is returned is actually a pointer to an
+		arm_rec structure.  It is declared as a void * to eliminate
+		the need to include arm.h in the source file.  It should be
+		cast to arm_rec * before it is used.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+USAGE
+
+After calls to ArmStart, ArmConnect, and ArmSetUpdate, the window specified in
+ArmStart call will start to receive window messages whenever a Microscribe
+position update is received.  The Id value for this message is obtained by
+calling RegisterWindowMessage(ARM_MESSAGE).  The content of the WPARAM value
+is the type of the update (from the call to ArmUpdate).  The content for the
+LPARAM value is a pointer to the arm_rec structure (defined in the arm.h file)
+that has the results for the current position calculations.
+
+
+
+EXAMPLE
+
+
+
+In the initialization for the program, do something similar to what follows.
+
+	UINT armMessageVal;	/* the id for the message type */
+	HWND hwindow;		/* the handle for window to work with */
+
+	....
+
+	armMessageVal = RegisterWindowMessage(ARM_MESSAGE);
+
+	if (ArmStart(hwindow) != ARM_SUCCESS)
+		;	/* handle no start error */
+
+	if (ArmConnect(0,0) != ARM_SUCCESS)
+		;	/* handle the no connection error */
+
+	if (ArmSetUpdate(ARM_6DOF) != ARM_SUCCESS)
+		;	/* handle a setupate failure */
+
+
+
+At the end of the program
+
+	ArmEnd();
+
+
+In the window procedure
+
+
+	switch (msg) {
+
+		....
+
+		case armMessageVal :
+			/* the LPARAM value is the pointer to the arm_rec */
+			/* the WPARAM value is the type of the update */
+		break;
+
+		....
+
+	}
+

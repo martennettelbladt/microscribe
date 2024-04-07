@@ -1,0 +1,147 @@
+
+Dear MicroScribe-3D Developer,
+
+Your Immersion MicroScribe-3D Software Developer's Kit PC DOS Version
+	is included on this diskette.  This package contains everything
+	you need to develop software for the Immersion MicroScribe-3D.
+
+The software library consists of 3 source files, 3 header files,
+	and 3 example source programs, and this readme file.
+
+This kit is only for the MicroScribe-3D, not other 6DOF arm products.
+The source files arm.c, arm.h, hci.c, hci.h, drivepc.c, and drive.h
+have changed from the original Personal Digitizer DPL.
+
+Source Files:
+	arm.c - This includes all high-level calls for using
+		Immersion Corp.'s MicroScribe-3D.  Your programs
+		will need to call these functions directly.
+
+	hci.c - This includes all low-level calls.  You will not
+		need to call these functions; just link this file
+		with the rest of your project.
+
+	drivepc.c - All machine-specific calls are contained here.
+		You will not need to call these functions directly, either.
+		For other computing platforms (e.g.,  Unix, Mac), this file
+		is simply replaced by a corresponding machine-specific
+		file.
+
+Header Files:
+	arm.h - Includes all definitions and types used by the library.
+		You need to #include this in your program.
+
+	hci.h - Includes all definitions and types used by the
+		low-level hci.c module.  You need to #include this in your program.
+
+
+	drive.h - This file is needed only to compile drivepc.c.
+		Do not #include this in your program, unless you want
+		to do your own direct serial i/o.
+
+Examples:
+	Digitize.c - Sample program showing how to get points from the
+		MicroScribe for digitizing applications.  Prints MicroScribe coordinates 
+		to screen.
+
+	MSTestPC.c - Sample test and diagnostic program for the MicroScribe.  
+		Prints MicroScribe serial number, model number, firmware version, 
+		joint angles, xyz coordinates, and other information to screen.
+
+	armfgnd.c - Shows typical main loop using FOREGROUND update
+		methods.  Prints MicroScribe coordinates to screen.
+
+	armmotn.c - Shows typical main loop using MOTION SENSING update
+		methods.  Prints MicroScribe coordinates to screen.  
+
+	armbgnd.c - Shows typical main loop using BACKGROUND update
+		methods.  Prints MicroScribe coordinates to screen.  
+
+For a discussion of foreground and background commands, see Chapter 3 
+of the SDK manual. A summary is also provided at the beginning of
+the file arm.c.
+
+
+
+TO CREATE YOUR OWN PROGRAM:
+
+Write a C program, perhaps using one of the examples as a template.
+Be sure to #include the files arm.h and hci.h in your program. Compile your
+program to produce an object file, and likewise compile the files
+arm.c, hci.c, and drivepc.c to produce object files.  Then,
+link your object file with the other three.
+
+COMPILER-SPECIFIC CALLS
+
+You may encounter compiler errors if you are not using a Borland
+or Microsoft compiler.  The following DOS functions and keywords
+are #defined at the beginning of drivpc.c.  __TURBOC__  is #defined
+for Borland compilers, and _MSC_VER is #defined for Microsoft
+compilers.
+
+  #if defined(__TURBOC__)
+
+  #define INTERRUPT       interrupt
+  #define INPB                    inp
+  #define INPW                    inpw
+  #define OUTPB                   outp
+  #define OUTPW                   outpw
+  #define DISABLE()               disable()
+  #define ENABLE()                enable()
+  #define GETVECT(x)      getvect(x)
+  #define SETVECT(x,y)    setvect(x,y)
+
+  #elif defined (_MSC_VER)
+
+  #pragma message("Using Microsoft hardware I/O Functions")
+  #define INTERRUPT       __interrupt
+  #define INPB                    inp
+  #define INPW                    inpw
+  #define OUTPB                   outp
+  #define OUTPW                   outpw
+  #define DISABLE()               _disable()
+  #define ENABLE()                _enable()
+  #define GETVECT(x)      _dos_getvect(x)
+  #define SETVECT(x,y)    _dos_setvect(x,y)
+
+  #else
+
+  #error UNDEFINED Compiler for hardware access functions
+
+  #endif
+
+If you are not using a Borland or Microsoft compiler, the easiest 
+thing to do would be to copy the Borland #if defined(__TURBOC__ ) 
+block and paste it in the #else block replacing the #error 
+UNDEFINED Compiler message.  If drivepc.c still doesn't compile, 
+try copying the Microsoft _MSC_VER #elif defined block instead of 
+the Borland block into the #else block.  If drivepc.c still doesn't 
+compile, you need to look up the equivalent of all these DOS 
+functions and keywords for you compiler and enter them in the #else 
+block in the same format as the Borland and Microsoft blocks as 
+shown below.
+
+  #else
+
+  #pragma message("Using my compiler's hardware I/O Functions")
+  #define INTERRUPT       my_compiler_interrupt_keyword
+  #define INPB            my_compiler_inpb_function
+  #define INPW    my_compiler_inpw_function
+  #define OUTPB   my_compiler_outpb_function
+  #define OUTPW   my_compiler_outpw_function
+  #define DISABLE()       my_compiler_disable()_function
+  #define ENABLE()        my_compiler_enable()_function
+  #define GETVECT(x)              my_compiler_getvect(x)_function
+  #define SETVECT(x,y)    my_compiler_setvect(x,y)_function
+
+  #endif
+
+
+Consult your SDK Companion Manual for additional information.
+For questions, call (408) 467-1900 and ask for Technical Support,
+or write email to support@immerse.com.  You can reach us by fax
+at (408) 467-1901.  The MicroScribe SDK is also available by 
+download from Immersion's website:  www.immerse.com
+
+
+Thank you.
