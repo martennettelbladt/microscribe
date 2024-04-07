@@ -24,7 +24,6 @@
  
 */
 #include <Bela.h>
-#include <libraries/Pipe/Pipe.h>
 #include <cmath>
 #include <string.h>
 
@@ -37,7 +36,7 @@ extern "C" {
 
 
 
-long baud = 9600L;
+long baud = 115200L;
 int port = 0;
 
 float gFrequency[3];
