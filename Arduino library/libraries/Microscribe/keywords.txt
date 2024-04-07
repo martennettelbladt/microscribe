@@ -1,0 +1,17 @@
+#######################################
+# Syntax Coloring Map For MicroScribe
+#######################################
+# Class
+#######################################
+
+arm_rec	KEYWORD1
+
+#######################################
+# Methods and Functions
+#######################################
+
+arm_result	KEYWORD2
+arm_init	KEYWORD2
+arm_install_simple	KEYWORD2
+arm_connect	KEYWORD2
+arm_stylus_6DOF_update	KEYWORD2
